@@ -1,15 +1,33 @@
+use particles::utils::*;
+
 use macroquad::prelude::*;
 
-#[macroquad::main("BasicShapes")]
+const WIDTH: usize = 500;
+const HEIGHT: usize = 500;
+
+fn generate_window() -> Conf {
+    Conf {
+        window_title: "Particles".to_owned(),
+        window_width: WIDTH as i32,
+        window_height: HEIGHT as i32,
+        window_resizable: false,
+        fullscreen: false,
+        ..Default::default()
+    }
+}
+
+#[macroquad::main(generate_window)]
 async fn main() {
+    let mut rng = ::rand::thread_rng();
+
+    // generate particles
+    let mut particles = generate_particles::<WIDTH, HEIGHT, _>(2, &mut rng, RadiusOption::Constant(5.0), WHITE);
+
     loop {
-        clear_background(RED);
+        clear_background(BLACK);
 
-        draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
-        draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
-        draw_circle(screen_width() - 30.0, screen_height() - 30.0, 15.0, YELLOW);
-
-        draw_text("IT WORKS!", 20.0, 20.0, 30.0, DARKGRAY);
+        // draw particles
+        particles.iter().for_each(|p| p.draw());
 
         next_frame().await
     }
