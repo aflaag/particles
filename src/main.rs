@@ -2,8 +2,12 @@ use particles::utils::*;
 
 use macroquad::prelude::*;
 
-const WIDTH: usize = 500;
-const HEIGHT: usize = 500;
+const WIDTH: usize = 1920;
+const HEIGHT: usize = 1080;
+const SIZE: usize = 200;
+
+const MAX_DIST: f32 = 80.0;
+const K: f32 = 0.7;
 
 fn generate_window() -> Conf {
     Conf {
@@ -21,37 +25,27 @@ async fn main() {
     let mut rng = ::rand::thread_rng();
 
     // generate particles
-    // TODO: add mass maybe? very cool
-    let mut particles = generate_particles::<WIDTH, HEIGHT, _>(20, &mut rng, RadiusOption::Constant(5.0), WHITE);
+    let mut red_particles = generate_particles::<WIDTH, HEIGHT, SIZE, _>(&mut rng, 3.0, RED);
+    let mut green_particles = generate_particles::<WIDTH, HEIGHT, SIZE, _>(&mut rng, 3.0, GREEN);
+    let mut yellow_particles = generate_particles::<WIDTH, HEIGHT, SIZE, _>(&mut rng, 3.0, YELLOW);
 
     loop {
         // clear the screen
         clear_background(BLACK);
         
-        let particles_clone = particles.clone();
-
-        for p1 in &mut particles {
-            let mut grav_force = Vec2::ZERO;
-
-            for p2 in &particles_clone {
-                let first = p1.dist_x(p2);
-                let second = p1.dist_y(p2);
-
-                let distance = first * first + second * second;
-
-                if distance > 0.0 {
-                    let part = G / distance;
-
-                    grav_force += part * Vec2::new(first, second);
-                }
-            }
-
-            p1.x = grav_force.x;
-            p1.y = grav_force.y;
-        }
+        // perform interactions
+        green_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(green_particles, &green_particles, MAX_DIST, K, -0.32);
+        green_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(green_particles, &red_particles, MAX_DIST, K, -0.17);
+        green_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(green_particles, &yellow_particles, MAX_DIST, K, 0.34);
+        red_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(red_particles, &red_particles, MAX_DIST, K, -0.1);
+        red_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(red_particles, &green_particles, MAX_DIST, K, -0.34);
+        yellow_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(yellow_particles, &yellow_particles, MAX_DIST, K, 0.15);
+        yellow_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(yellow_particles, &green_particles, MAX_DIST, K, -0.2);
 
         // draw particles
-        particles.iter().for_each(|p| p.draw());
+        red_particles.iter().for_each(|p| p.draw());
+        green_particles.iter().for_each(|p| p.draw());
+        yellow_particles.iter().for_each(|p| p.draw());
 
         next_frame().await
     }
