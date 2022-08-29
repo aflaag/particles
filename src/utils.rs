@@ -3,6 +3,8 @@ use crate::particle::Particle;
 use macroquad::prelude::*;
 use ::rand::Rng;
 
+pub const G: f32 = 6.67 * 10e-11;
+
 pub enum RadiusOption {
     Constant(f32),
     NonConstant,

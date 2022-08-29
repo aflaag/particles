@@ -1,5 +1,6 @@
 use macroquad::prelude::*;
 
+#[derive(Debug, Clone, Copy)]
 pub struct Particle {
     pub x: f32,
     pub y: f32,
@@ -14,7 +15,15 @@ impl Particle {
         Self { x, y, radius, vx, vy, color }
     }
 
+    pub fn dist_x(&self, other: &Self) -> f32 {
+        self.x - other.x
+    }
+
+    pub fn dist_y(&self, other: &Self) -> f32 {
+        self.y - other.y
+    }
+
     pub fn draw(&self) {
-        draw_circle(self.x, self.y, self.radius, self.color);
+        draw_circle(self.x + 250.0, self.y + 250.0, self.radius, self.color);
     }
 }
