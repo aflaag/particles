@@ -1,6 +1,7 @@
 use particles::particles::Particles;
 
 use macroquad::{prelude::*, ui::{widgets, root_ui}, hash};
+use ::rand::Rng;
 
 const WIDTH: usize = 1920;
 const HEIGHT: usize = 1080;
@@ -19,6 +20,8 @@ fn generate_window() -> Conf {
 
 #[macroquad::main(generate_window)]
 async fn main() {
+    let max_dimension = WIDTH.max(HEIGHT) as f32;
+
     let mut rng = ::rand::thread_rng();
 
     let mut red_particles = Particles::<WIDTH, HEIGHT, SIZE>::from_random(&mut rng, 3.0, RED);
@@ -39,7 +42,10 @@ async fn main() {
     let mut slider9 = 0.0;
 
     let pos = Vec2::new(100., 100.);
-    let size = Vec2::new(500., 250.);
+    let size = Vec2::new(470., 280.);
+
+    let rand_k_pos = Some(Vec2::new(100., 2.));
+    let rand_max_dist_pos = Some(Vec2::new(200., 2.));
 
     loop {
         clear_background(BLACK);
@@ -48,7 +54,27 @@ async fn main() {
             .label("Parameters")
             .movable(true)
             .ui(&mut *root_ui(), |ui| {
-                ui.slider(hash!(), "Max Distance", 0f32..WIDTH as f32, &mut max_dist);
+                if ui.button(None, "Randomize!") {
+                    slider1 = rng.gen_range(-1f32..1f32);
+                    slider2 = rng.gen_range(-1f32..1f32);
+                    slider3 = rng.gen_range(-1f32..1f32);
+                    slider4 = rng.gen_range(-1f32..1f32);
+                    slider5 = rng.gen_range(-1f32..1f32);
+                    slider6 = rng.gen_range(-1f32..1f32);
+                    slider7 = rng.gen_range(-1f32..1f32);
+                    slider8 = rng.gen_range(-1f32..1f32);
+                    slider9 = rng.gen_range(-1f32..1f32);
+                }
+
+                if ui.button(rand_k_pos, "Randomize K") {
+                    k = rng.gen_range(0f32..1f32);
+                }
+
+                if ui.button(rand_max_dist_pos, "Randomize Max Dist (not recommended)") {
+                    max_dist = rng.gen_range(0f32..max_dimension);
+                }
+
+                ui.slider(hash!(), "Max Dist", 0f32..max_dimension, &mut max_dist);
                 ui.slider(hash!(), "K", 0f32..1f32, &mut k);
 
                 ui.slider(hash!(), "G-G", -1f32..1f32, &mut slider1);
