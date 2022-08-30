@@ -1,4 +1,4 @@
-use particles::utils::*;
+use particles::particles::Particles;
 
 use macroquad::{prelude::*, ui::{widgets, root_ui}, hash};
 
@@ -21,9 +21,9 @@ fn generate_window() -> Conf {
 async fn main() {
     let mut rng = ::rand::thread_rng();
 
-    let mut red_particles = generate_particles::<WIDTH, HEIGHT, SIZE, _>(&mut rng, 3.0, RED);
-    let mut green_particles = generate_particles::<WIDTH, HEIGHT, SIZE, _>(&mut rng, 3.0, GREEN);
-    let mut yellow_particles = generate_particles::<WIDTH, HEIGHT, SIZE, _>(&mut rng, 3.0, YELLOW);
+    let mut red_particles = Particles::<WIDTH, HEIGHT, SIZE>::from_random(&mut rng, 3.0, RED);
+    let mut green_particles = Particles::<WIDTH, HEIGHT, SIZE>::from_random(&mut rng, 3.0, GREEN);
+    let mut yellow_particles = Particles::<WIDTH, HEIGHT, SIZE>::from_random(&mut rng, 3.0, YELLOW);
 
     let mut max_dist = 80.0;
     let mut k = 0.7;
@@ -59,19 +59,19 @@ async fn main() {
                 ui.slider(hash!(), "Y-R", -1f32..1f32, &mut slider9);
             });
 
-        green_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(green_particles, &green_particles, max_dist, k, slider1);
-        green_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(green_particles, &red_particles, max_dist, k, slider2);
-        green_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(green_particles, &yellow_particles, max_dist, k, slider3);
-        red_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(red_particles, &red_particles, max_dist, k, slider4);
-        red_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(red_particles, &green_particles, max_dist, k, slider5);
-        yellow_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(yellow_particles, &yellow_particles, max_dist, k, slider6);
-        yellow_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(yellow_particles, &green_particles, max_dist, k, slider7);
-        red_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(red_particles, &yellow_particles, max_dist, k, slider8);
-        yellow_particles = perform_interaction::<WIDTH, HEIGHT, SIZE>(yellow_particles, &red_particles, max_dist, k, slider9);
+        green_particles.self_interact(max_dist, k, slider1);
+        green_particles.interact_with(&red_particles, max_dist, k, slider2);
+        green_particles.interact_with(&yellow_particles, max_dist, k, slider3);
+        red_particles.self_interact(max_dist, k, slider4);
+        red_particles.interact_with(&green_particles, max_dist, k, slider5);
+        yellow_particles.self_interact(max_dist, k, slider6);
+        yellow_particles.interact_with(&green_particles, max_dist, k, slider7);
+        red_particles.interact_with(&yellow_particles, max_dist, k, slider8);
+        yellow_particles.interact_with(&red_particles, max_dist, k, slider9);
 
-        red_particles.iter().for_each(|p| p.draw());
-        green_particles.iter().for_each(|p| p.draw());
-        yellow_particles.iter().for_each(|p| p.draw());
+        red_particles.draw();
+        green_particles.draw();
+        yellow_particles.draw();
 
         next_frame().await
     }
