@@ -4,7 +4,7 @@ use macroquad::{prelude::*, ui::{widgets, root_ui}, hash};
 
 const WIDTH: usize = 1920;
 const HEIGHT: usize = 1080;
-const SIZE: usize = 200;
+const SIZE: usize = 500;
 
 fn generate_window() -> Conf {
     Conf {

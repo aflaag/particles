@@ -2,6 +2,7 @@ use crate::particle::Particle;
 
 use macroquad::prelude::*;
 use ::rand::Rng;
+use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Particles<const W: usize, const H: usize, const S: usize> {
@@ -16,11 +17,9 @@ impl<const W: usize, const H: usize, const S: usize> Particles<W, H, S> {
             .iter_mut()
             .for_each(|p| {
                 *p = Particle::new(
-                    rng.gen_range(0f32..W as f32),
-                    rng.gen_range(0f32..H as f32),
+                    Vec2::new(rng.gen_range(0f32..W as f32), rng.gen_range(0f32..H as f32)),
                     radius,
-                    0.0,
-                    0.0,
+                    Vec2::ZERO,
                     color,
                 )
             });
@@ -38,32 +37,31 @@ impl<const W: usize, const H: usize, const S: usize> Particles<W, H, S> {
 
     pub fn interact_with(&mut self, other_particles: &Self, max_dist: f32, k: f32, g: f32) {
         self.particles
-            .iter_mut()
+            .par_iter_mut()
             .for_each(|p1| {
-                let mut grav_force = Vec2::ZERO;
+                other_particles
+                    .particles
+                    .iter()
+                    .for_each(|p2| {
+                        let d = p1.distance_from(p2);
 
-                for p2 in other_particles.particles {
-                    let first = p1.dist_x(&p2);
-                    let second = p1.dist_y(&p2);
+                        let distance = (d.x * d.x + d.y * d.y).sqrt();
 
-                    let distance = (first * first + second * second).sqrt();
+                        if distance > 0.0 && distance < max_dist {
+                            p1.v += g / distance * d;
+                        }
+                    });
 
-                    if distance > 0.0 && distance < max_dist {
-                        grav_force += g / distance * Vec2::new(first, second);
-                    }
+                p1.v *= k;
+
+                p1.pos += p1.v;
+
+                if p1.pos.x < 0.0 || p1.pos.x > W as f32 {
+                    p1.v.x *= -1.0;
                 }
 
-                p1.vx = (p1.vx + grav_force.x) * k;
-                p1.vy = (p1.vy + grav_force.y) * k;
-                p1.x += p1.vx;
-                p1.y += p1.vy;
-
-                if p1.x < 0.0 || p1.x > W as f32 {
-                    p1.vx *= -1.0;
-                }
-
-                if p1.y < 0.0 || p1.y > H as f32 {
-                    p1.vy *= -1.0;
+                if p1.pos.y < 0.0 || p1.pos.y > H as f32 {
+                    p1.v.y *= -1.0;
                 }
         });
     }
