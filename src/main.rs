@@ -38,10 +38,13 @@ async fn main() {
     let mut slider8 = 0.0;
     let mut slider9 = 0.0;
 
+    let pos = Vec2::new(100., 100.);
+    let size = Vec2::new(500., 250.);
+
     loop {
         clear_background(BLACK);
         
-        widgets::Window::new(hash!(), Vec2::new(100., 100.), Vec2::new(500., 250.))
+        widgets::Window::new(hash!(), pos, size)
             .label("Parameters")
             .movable(true)
             .ui(&mut *root_ui(), |ui| {
