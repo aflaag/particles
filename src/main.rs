@@ -20,7 +20,7 @@ fn generate_window() -> Conf {
 
 #[macroquad::main(generate_window)]
 async fn main() {
-    let max_dimension = WIDTH.max(HEIGHT) as f32;
+    let max_dimension = WIDTH.min(HEIGHT) as f32;
 
     let mut rng = ::rand::thread_rng();
 
