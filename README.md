@@ -1,5 +1,7 @@
 # particles
 
+![Screenshot](.github/screenshot.png)
+
 This project is inspired by [this](https://www.youtube.com/watch?v=0Kx4Y9TVMGg) YouTube video,
 which demonstrates how easy it is to implement this system.
 
